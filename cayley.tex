@@ -1,0 +1,129 @@
+\documentclass[10pt,a4paper,titlepage]{article}
+
+\usepackage[english]{babel}
+
+\usepackage{enumitem}
+\usepackage{xifthen}
+
+
+\newenvironment{tokenlist}
+	{\newcommand{\token}[3]{\textbf{##1} & \texttt{##2} & ##3 \\}
+		\begin{tabular}{rll}
+		\textbf{Symbol} & \textbf{Name} & \textbf{Description} \\
+		\hline\\}
+	{\end{tabular}}
+
+\newcommand{\ebnf}[2]{
+	\texttt{#1 = #2.}\\}
+
+
+\title{Cayley \\
+		\large A matix \& tree based programming language}
+\author{Flurin Gishammer, Christian Sami}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\pagenumbering{Roman}
+\section*{Introduction}
+
+\newpage
+\pagenumbering{arabic}
+\section{Grammar}
+\subsection{Tokens}
+\begin{tokenlist}
+	\token{}{NONE}{unidentified token}
+	\token{}{EOF}{end of file}
+	\token{}{IDENT}{identifier}
+	\token{}{NUMBER}{number}
+	\token{}{CHAR}{character}
+	\token{}{TYPE}{datatype (number, string, list, matrix, fun)}
+	\token{main}{MAIN}{program entry point}
+	\token{import}{IMPORT}{import a file}
+	\token{as}{AS}{as for scope identifier}
+	\token{return}{RETURN}{return}
+	\token{if}{IF}{if}
+	\token{elif}{ELIF}{else if}
+	\token{else}{ELSE}{else}
+	\token{for}{FOR}{for}
+	\token{and}{AND}{and}
+	\token{or}{OR}{or}
+	\token{break}{BREAK}{break}
+	\token{continue}{CONTINUE}{continue}
+	\token{fn}{FUNCTION}{function}
+	\token{var}{VAR}{variable}
+	\token{"}{DQUOTE}{double quotes}
+	\token{.}{DOT}{dot}
+	\token{,}{COMMA}{comma}
+	\token{:}{COLON}{colon}
+	\token{;}{SEMCOL}{semicolon}
+	\token{(}{LBRACK}{left bracket}
+	\token{)}{RBRACK}{right bracket}
+	\token{[}{LSBRACK}{left square bracket}
+	\token{]}{RSBRACK}{right square bracket}
+	\token{\{}{LCBRACK}{left curly bracket}
+	\token{\}}{RCBRACK}{right curly bracket}
+	\token{=}{EQ}{equals}
+	\token{\textgreater}{GT}{greater than}
+	\token{\textless}{LT}{less than}
+	\token{+}{PLUS}{addition}
+	\token{-}{MINUS}{subtration}
+	\token{*}{TIMES}{multiplication}
+	\token{/}{SLASH}{division}
+	\token{d/d}{DIFF}{differential}
+\end{tokenlist}
+
+\subsection{Rules}
+\ebnf{mainprog}{prog mainfn}
+\ebnf{prog}{{importstm} {function}}
+
+\subsubsection{Basic Statements}
+\ebnf{importstm}{import ident [as ident]}
+\ebnf{identifier}{ident { "." ident }}
+\ebnf{block}{"\{" sequence \{ sequence \} "\}"}
+\ebnf{sequence}{controlstm | statement}
+\ebnf{statement}{(definition | assignment | basefun | funcall | returnstm | break | continue) ";"}
+\ebnf{definition}{var type ident}
+\ebnf{assignment}{ident ((\{"=" ident\} "=" expr))}
+\ebnf{returnstm}{return expr}
+
+\subsubsection{Basic Types}
+\ebnf{value}{identifier | number | list | matrix | string | lambda | funcall}
+\ebnf{string}{""" \{char\} """}
+\ebnf{list}{"[" value \{"," value \} "]"}
+\ebnf{range}{number [":" number] ":" number}
+\ebnf{matrix}{"[" (identifier | lambda | number | funcall) \{("," | ";") (identifier | lambda | number | funcall) \} "]"}
+
+\subsubsection{Operations}
+\ebnf{expr}{term \{("+"|"-") term\}}
+\ebnf{term}{factor \{("*"|"/") factor \}}
+\ebnf{abs}{"|" factor "|"}
+\ebnf{norm}{"||" factor "||" number}
+\ebnf{factor}{value | "(" expr ")" | abs | norm}
+
+\ebnf{basefun}{integral | diff}
+\ebnf{difval}{ident | "~"}
+\ebnf{integral}{intd "[" difval "]" "[" range "]" "(" (identifier | lambda) ")"}
+\ebnf{diff}{d/d "[" difval \{difval\} "]" "(" (identifier | lambda) ")"}
+
+\subsubsection{Control Structures}
+\ebnf{contolstm}{ifstm | forstm}
+\ebnf{condition}{(expr ("=="|"!="|">"|">="|"<"|"<=") expr) | ("(" condition \{(and | or) condition\} ")")}
+\ebnf{ifstm}{if condition block \{elif condition block\} [else block]}
+\ebnf{forstm}{for ident [ident] "=" value block }
+
+\subsubsection{Functions}
+\ebnf{mainfn}{main "(" ident ")" block}
+\ebnf{function}{fn type ident "(" {type ident} ")" block}
+\ebnf{lambda}{(([type] ident) | ("(" {[type] ident} ")")) "->" (expr | block)}
+\\
+\ebnf{funcall}{identifier "(" {expr} ")"}
+
+
+\end{document}
